@@ -10,28 +10,40 @@ import java.util.Locale;
 import java.util.Scanner;
 
 public class main {
+
+
     static Scanner scanner = new Scanner(System.in);
     static String[] searchPlatforms = {"Ebay", "Saturn"};
+    public static boolean loadingDone;
+    static consoleHelperModel loader;
 
     @SuppressWarnings("MethodNameSameAsClassName")
     public static void main(String[] args){
+
         menu();
 
         System.out.println("Was suchst du?");
         scanner.nextLine(); //consumes the \n from menu()
         String input = scanner.nextLine();
 
-        String userSearchString = processInput(input);
+        String userSearchString = processInputQuery(input);
 
         System.out.println("Suche started nach: " + userSearchString);
 
 
+
         try {
-            searchEbay(userSearchString);
+            loader = new consoleHelperModel("Console Animator");
+            loader.start();
+            searchSaturn(userSearchString);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
     }
+
 
     public static void menu(){
         System.out.println("Main Menu:");
@@ -65,7 +77,7 @@ public class main {
         }
     }
 
-    public static String processInput(String input){
+    public static String processInputQuery(String input){
         String[] answers = input.split(" ");
 
         StringBuilder query = new StringBuilder();
@@ -98,14 +110,15 @@ public class main {
         Elements itemPrice = document.getElementsByClass("s-item__price");
 
         ArrayList<Double> allPrices = new ArrayList<Double>();
-
+        loadingDone = true;
+        System.out.println("\n");
         for(int i = 0; i < itemNames.size(); i++){
             System.out.println("Name: " + itemNames.get(i).text());
             System.out.println("Price: " + itemPrice.get(i).text());
             System.out.println(" ");
 
             try {
-                allPrices.add(convPriEbay(itemPrice.get(i).text()));
+                allPrices.add(formatEbayPrice(itemPrice.get(i).text()));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -124,14 +137,20 @@ public class main {
         Document document = (Document) Jsoup.connect(url).get();
 
         Elements names = document.select("[data-test=\"product-title\"]");
-        Elements prices = document.select("[data-test=\"product-price\"]");
-        for(int i = 0; i < names.size(); i++){
+        //Elements prices = document.select("[data-test=\"product-price\"]");
+        Elements prices = document.getElementsByClass("Typostyled__StyledInfoTypo-sc-1jga2g7-0 bdjSlC StrikeThrough__StyledStrikePriceTypo-sc-1uy074f-0 lcCuFl");
+        loadingDone = true;
+        System.out.println("\n");
+
+        for(int i = 0; i < prices.size(); i++){
             System.out.println(names.get(i).text());
-            System.out.println(prices.get(i).text());
+            System.out.println(formatSaturnPrice(prices.get(i).text()));
         }
+
+
     }
 
-    public static double convPriEbay(String pri) throws ParseException {
+    public static double formatEbayPrice(String pri) throws ParseException {
         //EUR 135,00
         pri = pri.substring(4);
 
@@ -141,5 +160,15 @@ public class main {
 
         System.out.println(d);
         return d;
+    }
+
+    public static double formatSaturnPrice(String pri) {
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < pri.length(); i++){
+            if(Character.isDigit(pri.charAt(i))){
+                builder.append(pri.charAt(i));
+            }
+        }
+        return Double.parseDouble(builder.toString());
     }
 }
