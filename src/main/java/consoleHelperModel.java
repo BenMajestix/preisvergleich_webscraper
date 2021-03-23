@@ -9,20 +9,6 @@ public class consoleHelperModel implements Runnable{
     }
 
     public void print(String line) {
-        //clear the last line if longer
-        /*
-        if (lastLine.length() > line.length()) {
-            String temp = "";
-            for (int i = 0; i < lastLine.length(); i++) {
-                temp += " ";
-            }
-            if (temp.length() > 1)
-                System.out.print("\r" + temp);
-        }
-        System.out.print("\r" + line);
-        lastLine = line;
-         */
-        //System.out.print("\r");
         System.out.print("\r" + line);
     }
 
